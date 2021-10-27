@@ -58,13 +58,21 @@
 			children = (
 				9F3127692729B9AB0047B4AA /* AppDelegate.swift */,
 				9F31276B2729B9AB0047B4AA /* SceneDelegate.swift */,
-				9F31276D2729B9AB0047B4AA /* ViewController.swift */,
+				9F31277D2729B9F60047B4AA /* MainVC */,
 				9F31276F2729B9AB0047B4AA /* Main.storyboard */,
 				9F3127722729B9AD0047B4AA /* Assets.xcassets */,
 				9F3127742729B9AD0047B4AA /* LaunchScreen.storyboard */,
 				9F3127772729B9AD0047B4AA /* Info.plist */,
 			);
 			path = WeatherCombineMVVM;
+			sourceTree = "<group>";
+		};
+		9F31277D2729B9F60047B4AA /* MainVC */ = {
+			isa = PBXGroup;
+			children = (
+				9F31276D2729B9AB0047B4AA /* ViewController.swift */,
+			);
+			path = MainVC;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
