@@ -11,8 +11,10 @@ import UIKit
 
 class ViewModel {
     
-    @Published var data = [""]  //publisher
-    private var anyCancelable = Set<AnyCancellable>() //subscriber
+    @Published var data = [""]
+    { didSet {print(data)} }  //publisher, didset - pri izmenenii peremennoj
+    
+    var anyCancelable = Set<AnyCancellable>() //subscriber
     
     @Published var canChangeButton: Bool = false  //publisher
     
@@ -22,25 +24,28 @@ class ViewModel {
 //    private var switchSubscriber2: AnyCancellable? //subscriber2 fro red button
 //    private var switchSubscriber3: AnyCancellable? //subscriber3 fro red button
     
-    func fetch() {
+    func fetch() -> AnyPublisher<[String], Error> {
         NetworkManager.shared.getResults()
             .receive(on: DispatchQueue.main)
             .map{$0}
-            .sink { completion in
-    
-                switch completion {
-                
-                case .finished:
-                    print("Done")
-                case .failure(let error):
-                    print(error)
-                }
-            } receiveValue: {[weak self] jobs in
-                guard let self = self else {return}
-                self.data = jobs
-                
-            }
-            .store(in: &anyCancelable)
+            .mapError {$0}
+            .eraseToAnyPublisher()
+            
+//            .sink { completion in
+//
+//                switch completion {
+//
+//                case .finished:
+//                    print("Done")
+//                case .failure(let error):
+//                    print(error)
+//                }
+//            } receiveValue: {[weak self] jobs in
+//                guard let self = self else {return}
+//                //self.data = jobs
+//
+//            }
+//            .store(in: &NetworkManager.shared.anyCancelable)
     }
     
     func randomSmile() -> String {

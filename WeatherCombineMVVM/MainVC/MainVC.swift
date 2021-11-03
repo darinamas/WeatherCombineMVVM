@@ -13,7 +13,7 @@ class MainVC: UIViewController {
     
     @IBOutlet weak var wordLabel: UILabel!
     @IBOutlet weak var tempLabel: UILabel!
-
+    
     @IBOutlet weak var switcher: UISwitch!
     
     @IBOutlet weak var greyButton: UIButton!
@@ -28,18 +28,18 @@ class MainVC: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-      //  viewModel.switcherChanged(button1: greyButton, button2: redButton, button3: greenButton)
+        //  viewModel.switcherChanged(button1: greyButton, button2: redButton, button3: greenButton)
         
         // Create a publisher
         let publisher = NotificationCenter.Publisher(center: .default, name: .titleNotification, object: nil)
-                                        .map { (notification) -> String? in
-             return (notification.object as? titleStruct)?.title ?? ""
-        }
+            .map { (notification) -> String? in
+                return (notification.object as? titleStruct)?.title ?? ""
+            }
         
         let publisher2 = NotificationCenter.Publisher(center: .default, name: .titleNotification, object: nil)
-                                        .map { (notification) -> UIColor? in
-                                    return (notification.object as? titleStruct)?.color
-        }
+            .map { (notification) -> UIColor? in
+                return (notification.object as? titleStruct)?.color
+            }
         
         // Create a subscriber
         let subscriber = Subscribers.Assign(object: labelForButton, keyPath: \.text)
@@ -61,19 +61,40 @@ class MainVC: UIViewController {
                 .receive(on: DispatchQueue.main)
                 .assign(to: \.isEnabled, on: greyButton)
         ]
-       
+        
     }
-
+    var counter = 0
     @IBAction func buttonAction(_ sender: Any) {
+       // viewModel.fetch()
         viewModel.fetch()
-        viewModel.$data
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] data in
+            .sink { completion in
+                switch completion {
+                case .finished: print("OK")
+                case .failure( _ ): print("Error")
+                }
+            } receiveValue: {
+                [weak self] data in
+                guard let self = self else {return}
                 let randomWord = data.randomElement()
-                self?.wordLabel.text = randomWord
-                self?.tempLabel.text = self!.viewModel.randomSmile()
+                self.wordLabel.text = randomWord
+                self.counter += 1
+                self.tempLabel.text = self.viewModel.randomSmile()
+                print("\(self.viewModel.anyCancelable) \(self.counter) \(self.tempLabel.text) \(randomWord)")
             }
-            .store(in: &anyCancelable)
+            .store(in: &NetworkManager.shared.anyCancelable)
+        
+        //        viewModel.$data
+        //            .receive(on: DispatchQueue.main)
+        //            .sink { [weak self] data in
+        //                guard let self = self else {return}
+        //                let randomWord = data.randomElement()
+        //                self.wordLabel.text = randomWord
+        //                self.counter += 1
+        //                self.tempLabel.text = self.viewModel.randomSmile()
+        //                print("\(self.viewModel.anyCancelable) \(self.counter) \(self.tempLabel.text) \(randomWord)")
+        //            }
+        //            .store(in: &NetworkManager.shared.anyCancelable)
     }
     
     //Switcher
@@ -101,9 +122,9 @@ class MainVC: UIViewController {
     }
     
     func postNotification() {
-         // We can fire the notification when the user taps the button.
-         // Post the notification
-        let title = viewModel.textForLabel ?? "Coming soon"
+        // We can fire the notification when the user taps the button.
+        // Post the notification
+        let title = viewModel.textForLabel
         let color = viewModel.textColor
         let newTitle = titleStruct(title: title, color: color!)
         NotificationCenter.default.post(name: .titleNotification, object: newTitle)
